@@ -1,5 +1,3 @@
-__author__ = 'anzigly'
-
 from utils.time import TimeUtils
 from packet import Packet
 

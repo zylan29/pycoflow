@@ -1,4 +1,3 @@
-__author__ = 'anzigly'
 from datetime import datetime
 from datetime import timedelta
 

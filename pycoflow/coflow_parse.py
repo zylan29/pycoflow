@@ -1,4 +1,3 @@
-__author__ = 'anzigly'
 import os
 
 from coflows import Coflows

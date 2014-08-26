@@ -1,4 +1,3 @@
-__author__ = 'anzigly'
 from utils.time import TimeUtils
 
 

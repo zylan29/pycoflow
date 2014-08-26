@@ -1,4 +1,3 @@
-__author__ = 'anzigly'
 from flow import Flow
 from packet import Packet
 

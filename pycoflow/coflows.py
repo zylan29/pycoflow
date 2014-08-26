@@ -1,4 +1,3 @@
-__author__ = 'anzigly'
 from coflow import Coflow
 
 
@@ -8,6 +7,9 @@ class Coflows(object):
     """
     def __init__(self):
         self.coflows = {}
+
+    def __str__(self):
+        return map(str, self.coflows.values())
 
     def add_packet(self, packet):
         """
