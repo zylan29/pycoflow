@@ -1,9 +1,10 @@
 from datetime import datetime
 from datetime import timedelta
 
-TIME_FORMAT_ONE = "%b %d, %Y %H:%M:%S.%f"
-TIME_FORMAT_TWO = "%Y-%m-%d %H:%M:%S,%f"
-SHORT_TIME_FORMAT = "%H:%M:%S.%f"
+TIME_FORMAT_1 = "%b %d, %Y %H:%M:%S.%f"
+TIME_FORMAT_2 = "%Y-%m-%d %H:%M:%S,%f"
+TIME_FORMAT_3 = "%b %d, %Y %H:%M:%S,%f"
+SHORT_TIME_FORMAT = "%H:%M:%S.%ff"
 
 
 def convert_epoch_time(epoch_time):
@@ -23,8 +24,9 @@ def convert_epoch_time(epoch_time):
         time_object = datetime.fromtimestamp(epoch_time)
         return time_object
 
-TIME_CONVERT_FUNCS = [lambda x: datetime.strptime(x, TIME_FORMAT_ONE),
-                      lambda x: datetime.strptime(x, TIME_FORMAT_TWO),
+TIME_CONVERT_FUNCS = [lambda x: datetime.strptime(x, TIME_FORMAT_1),
+                      lambda x: datetime.strptime(x, TIME_FORMAT_2),
+                      lambda x: datetime.strptime(x, TIME_FORMAT_3),
                       lambda x:convert_epoch_time(x)]
 
 
@@ -39,6 +41,9 @@ class TimeUtils(object):
         if isinstance(time_express, datetime):
             return time_express
         else:
+            time_float = time_express.rfind(".")
+            if len(time_express) - time_float == 10 and time_express.endswith("000"):
+                time_express = time_express[:-3]
             for func in TIME_CONVERT_FUNCS:
                 try:
                     converted_time = func(time_express)
@@ -72,4 +77,9 @@ class TimeUtils(object):
         if time_format:
             return time_object.strftime(time_format)
         else:
-            return time_object.strftime(TIME_FORMAT_ONE)
+            return time_object.strftime(TIME_FORMAT_1)
+
+if __name__ == '__main__':
+    time_str = "Aug 29, 2014 15:28:33.312779000"
+    #time_str = "Aug 29, 2014 15:28:33.312779"
+    print TimeUtils.time_convert(time_str)
