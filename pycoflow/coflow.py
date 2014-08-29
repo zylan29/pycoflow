@@ -1,23 +1,32 @@
 from flow import RealisticFlow
 from packet import Packet
+from flow import LogicalFlow
 
 
 class Coflow(object):
     """
     a coflow abstraction
     """
-    def __init__(self):
-        self.coflow_id = self._generate_coflow_id()
-        self.logical_flows = {}
+    def __init__(self, logical_flow):
+        assert isinstance(logical_flow, LogicalFlow),  'Wrong argument when initializing a coflow with a logical_flow'
+        self.coflow_id = self._generate_coflow_id(logical_flow)
+        self.logical_flows = {logical_flow.generate_logical_flow_id: logical_flow}
         self.realistic_flows = {}
 
     def __str__(self):
         return "\n".join(map(str, self.realistic_flows.values()))
 
     @staticmethod
-    def _generate_coflow_id():
+    def _generate_coflow_id(logical_flow):
+
+        """
+        :param logical_flow:
+        :return:
+        """
         #TODO: realize a unique coflow_id generator
-        return NotImplementedError()
+        #将shuffle_id作为coflow_id
+        return logical_flow.shuffle_id
+        # return NotImplementedError()
 
     def get_coflow_id(self):
         return self.coflow_id
@@ -42,5 +51,9 @@ class Coflow(object):
         :param packet: an object of Packet
         :return: if found return flow_id, else return None
         """
+
+        #查找logical_flow中的流，如果能找到与之相匹配的，则返回logical_flow的id
+        #具体的匹配特征的方法还没想到
+
         #TODO: realize this function
         return NotImplementedError()
