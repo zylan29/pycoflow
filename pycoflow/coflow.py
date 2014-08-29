@@ -1,4 +1,4 @@
-from flow import Flow
+from flow import RealisticFlow
 from packet import Packet
 
 
@@ -8,10 +8,11 @@ class Coflow(object):
     """
     def __init__(self):
         self.coflow_id = self._generate_coflow_id()
-        self.flows = {}
+        self.logical_flows = {}
+        self.realistic_flows = {}
 
     def __str__(self):
-        return "\n".join(map(str, self.flows.values()))
+        return "\n".join(map(str, self.realistic_flows.values()))
 
     @staticmethod
     def _generate_coflow_id():
@@ -30,10 +31,10 @@ class Coflow(object):
         assert isinstance(packet, Packet),  'Wrong argument when adding a packet to coflow'
         flow_id = self._find_flow(packet)
         if not flow_id:
-            new_flow = Flow(packet)
-            self.flows[new_flow.get_flow_id()] = new_flow
+            new_flow = RealisticFlow(packet)
+            self.realistic_flows[new_flow.get_flow_id()] = new_flow
         else:
-            self.flows[flow_id].add_packet(packet)
+            self.realistic_flows[flow_id].add_packet(packet)
 
     def _find_flow(self, packet):
         """

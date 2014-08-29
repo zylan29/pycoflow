@@ -9,7 +9,15 @@ class Coflows(object):
         self.coflows = {}
 
     def __str__(self):
-        return map(str, self.coflows.values())
+        return "\n".join(map(str, self.coflows.values()))
+
+    def add_logical_flow(self, logical_flow):
+        """
+        add logical_flow to a coflow or create a new coflow
+        :param logical_flow: LogicalFlow object parsed form a line spark's log file
+        :return:
+        """
+        return NotImplementedError()
 
     def add_packet(self, packet):
         """
