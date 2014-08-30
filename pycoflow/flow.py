@@ -1,5 +1,5 @@
 from utils.time import TimeUtils
-from utils.ip import get_ip
+from utils.ip import IP
 from packet import Packet
 
 
@@ -37,7 +37,7 @@ class LogicalFlow():
         self.reduce_id = reduce_id
         self.blocks = blocks
         self.size = flow_size
-        self.src_ip = get_ip(src_name)
+        self.src_ip = IP.get_ip(src_name)
         self.src_port = src_port
 
     def generate_logical_flow_id(self):
@@ -62,10 +62,11 @@ class LogicalFlow():
             [start_time, shuffle_id, reduce_id, blocks, size, src_name, src_port] =\
                 [fields[0]+' '+fields[1], temp1[1], temp2[1], temp3[1],temp4[1],
                  temp6[0],temp6[1]]
-            if len(start_time) == 16 and start_time.endswith("000"):
-                start_time = start_time[:-3]
+            if len(start_time) == 21:
+                start_time = start_time + "000"
             start_time = TimeUtils.time_convert(start_time)
-            size = int(size)
+            size = float(size)
+            size = int(size*1000)
         except ValueError:
             return None
         else:

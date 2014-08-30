@@ -3,7 +3,7 @@ import os
 from coflows import Coflows
 from packet import Packet
 from flow import LogicalFlow
-from utils.ip import hosts
+from utils.ip import IP
 
 
 class CoflowParse(object):
@@ -44,8 +44,9 @@ class CoflowParse(object):
 
 
 if __name__ == '__main__':
+    # ip = IP()
+    # ip.parse_hosts("C:\Users\Administrator\Downloads\hosts")
     coflow_parse = CoflowParse()
-    coflow_parse.parse_log_file("C:\Users\Administrator\Downloads\log")
-    hosts("C:\Users\Administrator\Downloads\hosts")
+    # coflow_parse.parse_log_file("C:\Users\Administrator\Downloads\log")
     coflow_parse.parse_dir("C:\Users\Administrator\Downloads\\ts")
     print(coflow_parse.coflows)

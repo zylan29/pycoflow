@@ -5,7 +5,7 @@ import locale
 TIME_FORMAT_1 = "%b %d, %Y %H:%M:%S.%f"
 TIME_FORMAT_2 = "%Y-%m-%d %H:%M:%S,%f"
 TIME_FORMAT_3 = "%b %d, %Y %H:%M:%S,%f"
-TIME_FORMAT_4 = "%x//%x//%x %H:%M:%S,%f"
+TIME_FORMAT_4 = "%y/%m/%d %H:%M:%S,%f"
 SHORT_TIME_FORMAT = "%H:%M:%S.%ff"
 
 
