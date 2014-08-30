@@ -10,7 +10,7 @@ class Coflow(object):
     def __init__(self, logical_flow):
         assert isinstance(logical_flow, LogicalFlow), 'Wrong argument when initializing a coflow with a logical_flow'
         self.coflow_id = self._generate_coflow_id(logical_flow)
-        self.logical_flows = {logical_flow.generate_logical_flow_id: logical_flow}
+        self.logical_flows = {logical_flow.generate_logical_flow_id(): logical_flow}
         self.realistic_flows = {}
 
     def __str__(self):
@@ -41,7 +41,7 @@ class Coflow(object):
             if logical_flow.generate_logical_flow_id() == k:
                 self.logical_flows[k].append_logical_flow(logical_flow)
                 return
-        self.logical_flows[logical_flow.generate_logical_flow_id] = logical_flow
+        self.logical_flows[logical_flow.generate_logical_flow_id()] = logical_flow
 
     def add_realistic_flows(self, packet):
         """
@@ -66,6 +66,6 @@ class Coflow(object):
         #TODO: realize this function
         assert isinstance(packet, Packet),  'Wrong argument when finding a packet to realistic_flow'
         for k in self.realistic_flows:
-            if packet.dst_ip+':'+packet.dst_port == k:
+            if packet.src_ip+':'+packet.src_port+'-'+'>'+packet.dst_ip+':'+packet.dst_port == k:
                 return k
         return None

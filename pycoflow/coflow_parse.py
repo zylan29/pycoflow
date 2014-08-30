@@ -10,9 +10,9 @@ class CoflowParse(object):
     """
     parse coflows
     """
-    def __init__(self):
+    def __init__(self,hosts):
         self.coflows = Coflows()
-        self.hosts = {}
+        self.hosts = hosts
 
     def parse_dir(self, flow_files_dir):
         root, dirs, flow_files = os.walk(flow_files_dir).next()
@@ -39,14 +39,15 @@ class CoflowParse(object):
         with open(log_file) as f:
             log_lines = f.readlines()
             for log_line in log_lines:
-                logical_flow = LogicalFlow.from_log_line(log_line)
+                logical_flow = LogicalFlow.from_log_line(log_line, hosts)
                 self.coflows.add_logical_flow(logical_flow)
 
 
 if __name__ == '__main__':
+    global ip
     ip = IP()
-    ip.parse_hosts("C:\Users\Administrator\Downloads\hosts")
-    coflow_parse = CoflowParse()
-    # coflow_parse.parse_log_file("C:\Users\Administrator\Downloads\log")
+    hosts=ip.parse_hosts("C:\Users\Administrator\Downloads\hosts")
+    coflow_parse = CoflowParse(hosts)
+    coflow_parse.parse_log_file("C:\Users\Administrator\Downloads\log")
     coflow_parse.parse_dir("C:\Users\Administrator\Downloads\\ts")
     print(coflow_parse.coflows)

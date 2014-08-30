@@ -54,7 +54,7 @@ class Coflows(object):
         :return:
         """
         #TODO: compare packet with coflows[*].logical_flows[**],find *
-        for k, v in self.coflows:
+        for (k, v) in self.coflows.iteritems():
             assert isinstance(v, Coflow), "wrong argument when a proper coflow to place a packet"
             for k1 in v.logical_flows:
                 if packet.src_ip+':'+packet.src_port == k1:

@@ -1,5 +1,5 @@
 from utils.time import TimeUtils
-from utils.ip import IP
+import utils.ip
 from packet import Packet
 
 
@@ -31,17 +31,17 @@ class LogicalFlow():
     """
     a logical flow parsed form spark's log
     """
-    def __init__(self, start_time, shuffle_id, reduce_id, blocks, flow_size, src_name, src_port):
+    def __init__(self, start_time, shuffle_id, reduce_id, blocks, flow_size, src_ip, src_port):
         self.start_time = start_time
         self.shuffle_id = shuffle_id
         self.reduce_id = reduce_id
         self.blocks = blocks
         self.size = flow_size
-        self.src_ip = IP.get_ip(src_name)
+        self.src_ip = src_ip
         self.src_port = src_port
 
     def generate_logical_flow_id(self):
-        return +self.src_ip+':'+self.src_port
+        return self.src_ip+':'+self.src_port
 
     def append_logical_flow(self, logical_flow):
         assert isinstance(logical_flow, LogicalFlow), "Wrong argument when appending a logical_flow"
@@ -49,7 +49,7 @@ class LogicalFlow():
         self.size += logical_flow.size
 
     @staticmethod
-    def from_log_line(log_line):
+    def from_log_line(log_line,hosts):
         #TODO:parse a line from spark's log , return a LogicalFlow object
         try:
             fields = log_line.split(' ')
@@ -60,17 +60,18 @@ class LogicalFlow():
             temp5 = fields[6].split('=')
             temp6 = temp5[1].split(':')
             [start_time, shuffle_id, reduce_id, blocks, size, src_name, src_port] =\
-                [fields[0]+' '+fields[1], temp1[1], temp2[1], temp3[1],temp4[1],
-                 temp6[0],temp6[1]]
+                [fields[0]+' '+fields[1], temp1[1], temp2[1], temp3[1], temp4[1],
+                 temp6[0],temp6[1][:-1]]
             if len(start_time) == 21:
                 start_time = start_time + "000"
             start_time = TimeUtils.time_convert(start_time)
+            src_ip= hosts[src_name]
             size = float(size)
-            size = int(size*1000)
+            size = int(size*1024)
         except ValueError:
             return None
         else:
-            return LogicalFlow(start_time, shuffle_id, reduce_id, blocks, size, src_name, src_port)
+            return LogicalFlow(start_time, shuffle_id, reduce_id, blocks, size, src_ip, src_port)
 
 
 class RealisticFlow(Flow):
@@ -91,7 +92,7 @@ class RealisticFlow(Flow):
     @staticmethod
     def _generate_flow_id(packet):
         #TODO: realize a unique flow_id generator
-        return packet.src_ip+':'+packet.src_port
+        return packet.src_ip+':'+packet.src_port+'-'+'>'+packet.dst_ip+':'+packet.dst_port
         # return NotImplementedError()
 
     def get_flow_id(self):
