@@ -1,6 +1,6 @@
 from utils.time import TimeUtils
+from utils.ip import get_ip
 from packet import Packet
-from coflow_parse import CoflowParse
 
 
 class Flow(object):
@@ -31,33 +31,45 @@ class LogicalFlow():
     """
     a logical flow parsed form spark's log
     """
-    def __init__(self, start_time, shuffle_id, reduce_id, blocks, size, src_name, src_port ):
+    def __init__(self, start_time, shuffle_id, reduce_id, blocks, flow_size, src_name, src_port):
         self.start_time = start_time
         self.shuffle_id = shuffle_id
         self.reduce_id = reduce_id
         self.blocks = blocks
-        self.size = size
-        self.src_ip = CoflowParse.get_ip(src_name)
+        self.size = flow_size
+        self.src_ip = get_ip(src_name)
         self.src_port = src_port
 
     def generate_logical_flow_id(self):
-        return self.start_time+self.src_ip+':'+self.src_port
+        return +self.src_ip+':'+self.src_port
+
+    def append_logical_flow(self, logical_flow):
+        assert isinstance(logical_flow, LogicalFlow), "Wrong argument when appending a logical_flow"
+        self.blocks += logical_flow.blocks
+        self.size += logical_flow.size
 
     @staticmethod
     def from_log_line(log_line):
         #TODO:parse a line from spark's log , return a LogicalFlow object
-        # try:
-            # [start_time, shuffle_id, reduce_id, blocks, size, src_name, src_port ]=还不知道该如何把日志文件的一行中的信息取出
-            # if len(start_time) == 16 and packet_time.endswith("000"):
-            #     start_time = start_time[:-3]
-            # start_time = TimeUtils.time_convert(packet_time)
-            # size = int(size)
-
-        # except ValueError:
-        #     return None
-        # else:
-            # return LogicalFlow( start_time,shuffle_id, reduce_id, blocks, size, src_name, src_port )
-        return NotImplementedError()
+        try:
+            fields = log_line.split(' ')
+            temp1 = fields[2].split('=')
+            temp2 = fields[3].split('=')
+            temp3 = fields[4].split('=')
+            temp4 = fields[5].split('=')
+            temp5 = fields[6].split('=')
+            temp6 = temp5[1].split(':')
+            [start_time, shuffle_id, reduce_id, blocks, size, src_name, src_port] =\
+                [fields[0]+' '+fields[1], temp1[1], temp2[1], temp3[1],temp4[1],
+                 temp6[0],temp6[1]]
+            if len(start_time) == 16 and start_time.endswith("000"):
+                start_time = start_time[:-3]
+            start_time = TimeUtils.time_convert(start_time)
+            size = int(size)
+        except ValueError:
+            return None
+        else:
+            return LogicalFlow(start_time, shuffle_id, reduce_id, blocks, size, src_name, src_port)
 
 
 class RealisticFlow(Flow):
@@ -66,7 +78,7 @@ class RealisticFlow(Flow):
     """
     def __init__(self, packet, duration=0.0):
         assert isinstance(packet, Packet), 'Wrong argument when initializing a flow'
-        super(self, RealisticFlow).__init__(packet.packet_time, packet.src_ip, packet.dst_ip,
+        super(RealisticFlow, self).__init__(packet.packet_time, packet.src_ip, packet.dst_ip,
                                             packet.packet_size, packet.src_port, packet.dst_port, duration)
         self.flow_id = self._generate_flow_id(packet)
 
@@ -78,8 +90,7 @@ class RealisticFlow(Flow):
     @staticmethod
     def _generate_flow_id(packet):
         #TODO: realize a unique flow_id generator
-        #用与生成logical_flow_id相同的的方法，保持两者id一致
-        return packet.start_time+packet.src_ip+':'+packet.src_port
+        return packet.src_ip+':'+packet.src_port
         # return NotImplementedError()
 
     def get_flow_id(self):

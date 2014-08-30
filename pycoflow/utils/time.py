@@ -1,10 +1,13 @@
 from datetime import datetime
 from datetime import timedelta
+import locale
 
 TIME_FORMAT_1 = "%b %d, %Y %H:%M:%S.%f"
 TIME_FORMAT_2 = "%Y-%m-%d %H:%M:%S,%f"
 TIME_FORMAT_3 = "%b %d, %Y %H:%M:%S,%f"
+TIME_FORMAT_4 = "%x//%x//%x %H:%M:%S,%f"
 SHORT_TIME_FORMAT = "%H:%M:%S.%ff"
+
 
 
 def convert_epoch_time(epoch_time):
@@ -27,6 +30,7 @@ def convert_epoch_time(epoch_time):
 TIME_CONVERT_FUNCS = [lambda x: datetime.strptime(x, TIME_FORMAT_1),
                       lambda x: datetime.strptime(x, TIME_FORMAT_2),
                       lambda x: datetime.strptime(x, TIME_FORMAT_3),
+                      lambda x: datetime.strptime(x, TIME_FORMAT_4),
                       lambda x:convert_epoch_time(x)]
 
 
