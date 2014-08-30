@@ -85,7 +85,7 @@ class RealisticFlow(Flow):
         self.flow_id = self._generate_flow_id(packet)
 
     def __str__(self):
-        return "%s\t%s\t%s\t%s\t%s\t%s\t%d" % \
+        return "%s\t%s\t%s:%s--->%s:%s\t%d" % \
                (TimeUtils.time_to_string(self.start_time),
                 self.duration.total_seconds(), self.src_ip, self.src_port, self.dst_ip, self.dst_port, self.size)
 
