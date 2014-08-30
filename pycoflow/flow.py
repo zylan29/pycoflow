@@ -47,6 +47,7 @@ class LogicalFlow():
         assert isinstance(logical_flow, LogicalFlow), "Wrong argument when appending a logical_flow"
         self.blocks += logical_flow.blocks
         self.size += logical_flow.size
+        self.start_time = self.start_time if self.start_time < logical_flow.start_time else logical_flow.start_time
 
     @staticmethod
     def from_log_line(log_line,hosts):
@@ -68,6 +69,7 @@ class LogicalFlow():
             src_ip= hosts[src_name]
             size = float(size)
             size = int(size*1024)
+            blocks = int(blocks)
         except ValueError:
             return None
         else:
@@ -106,5 +108,6 @@ class RealisticFlow(Flow):
         :return: None
         """
         assert isinstance(packet, Packet), 'Wrong argument when adding a packet to flow'
+        self.start_time = self.start_time if self.start_time < packet.packet_time else packet.packet_time
         self.end_time = TimeUtils.time_convert(packet.packet_time) + TimeUtils.time_delta_convert(duration)
         self.size += packet.packet_size
