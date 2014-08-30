@@ -31,7 +31,7 @@ class CoflowParse(object):
             for flow_line in flow_lines:
                 if i == 1:
                     i += 1
-                    pass
+                    continue
                 packet = Packet.from_line_str(flow_line)
                 self.coflows.add_packet(packet)
 
@@ -44,8 +44,8 @@ class CoflowParse(object):
 
 
 if __name__ == '__main__':
-    # ip = IP()
-    # ip.parse_hosts("C:\Users\Administrator\Downloads\hosts")
+    ip = IP()
+    ip.parse_hosts("C:\Users\Administrator\Downloads\hosts")
     coflow_parse = CoflowParse()
     # coflow_parse.parse_log_file("C:\Users\Administrator\Downloads\log")
     coflow_parse.parse_dir("C:\Users\Administrator\Downloads\\ts")

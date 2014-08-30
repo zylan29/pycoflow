@@ -1,5 +1,5 @@
 class IP(object):
-    def _init_(self, hosts_file):
+    def _init_(self):
         self.hosts={}
 
     def parse_hosts(self, hosts_file):
