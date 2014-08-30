@@ -44,7 +44,6 @@ class CoflowParse(object):
 
 
 if __name__ == '__main__':
-    global ip
     ip = IP()
     hosts=ip.parse_hosts("C:\Users\Administrator\Downloads\hosts")
     coflow_parse = CoflowParse(hosts)
