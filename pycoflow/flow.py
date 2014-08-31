@@ -30,7 +30,7 @@ class LogicalFlow():
     """
     a logical flow parsed form spark's log
     """
-    def __init__(self, start_time, shuffle_id, reduce_id, blocks, flow_size, dst_ip, dst_port):
+    def __init__(self, start_time, shuffle_id, reduce_id, blocks, flow_size, dst_ip, dst_port, src_ip):
         self.start_time = start_time
         self.shuffle_id = shuffle_id
         self.reduce_id = reduce_id
@@ -39,9 +39,11 @@ class LogicalFlow():
         self.dst_ip = dst_ip
         self.dst_port = dst_port
         self.end_time = start_time
+        self.src_ip = src_ip
 
     def generate_logical_flow_id(self):
-        return TimeUtils.to_string(self.start_time)+"---"+TimeUtils.to_string(self.end_time)+" "+self.dst_ip+':'+self.dst_port
+        return TimeUtils.to_string(self.start_time)+"--"+TimeUtils.to_string(self.end_time)+" "+ \
+               self.src_ip+"->"+self.dst_ip+':'+self.dst_port
 
     def append_logical_flow(self, logical_flow):
         assert isinstance(logical_flow, LogicalFlow), "Wrong argument when appending a logical_flow"
@@ -50,15 +52,19 @@ class LogicalFlow():
         self.start_time = self.start_time if self.start_time < logical_flow.start_time else logical_flow.start_time
         self.end_time = self.end_time if self.end_time > logical_flow.start_time else logical_flow.start_time
 
+    def __str__(self):
+        return "%s\t%s:%s\t%d" % \
+               (TimeUtils.time_to_string(self.start_time), self.dst_ip, self.dst_port, self.size)
+
     @staticmethod
     def from_log_line(log_line, hosts):
         #TODO:parse a line from spark's log , return a LogicalFlow object
         try:
             fields = log_line.split(' ')
-            [start_time, shuffle_id, reduce_id, blocks, size, dst_name, dst_port] =\
+            [start_time, shuffle_id, reduce_id, blocks, size, dst_name, dst_port, src_ip] =\
                 [fields[0]+' '+fields[1], fields[2].split('=')[1], fields[3].split('=')[1], fields[4].split('=')[1],
-                 fields[5].split('=')[1], fields[6].split('=')[1].split(':')[0],
-                 fields[6].split('=')[1].split(':')[1][:-1]]
+                 fields[5].split('=')[1], fields[6].split('=')[1].split(':')[0], fields[6].split('=')[1].split(':')[1],
+                 fields[7][:-1]]
             if len(start_time) == 21:
                 start_time += "000"
             start_time = TimeUtils.time_convert(start_time)
@@ -68,7 +74,7 @@ class LogicalFlow():
         except ValueError:
             return None
         else:
-            return LogicalFlow(start_time, shuffle_id, reduce_id, blocks, size, dst_ip, dst_port)
+            return LogicalFlow(start_time, shuffle_id, reduce_id, blocks, size, dst_ip, dst_port, src_ip)
 
 
 class RealisticFlow(Flow):

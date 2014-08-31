@@ -1,8 +1,8 @@
 from packet import Packet
 from flow import LogicalFlow
 from flow import RealisticFlow
-import datetime
-from utils.time import TimeUtils
+
+
 
 
 class Coflow(object):
@@ -14,7 +14,7 @@ class Coflow(object):
         self.coflow_id = self._generate_coflow_id(logical_flow)
         self.logical_flows = {logical_flow.generate_logical_flow_id(): logical_flow}
         self.realistic_flows = {}
-        self.threshold = datetime.timedelta(0, 0, 0, 1)
+
 
     def __str__(self):
         return "Coflow " + self.coflow_id + ":\n" + "\n".join(map(str, self.realistic_flows.values()))
@@ -24,7 +24,7 @@ class Coflow(object):
 
         """
         :param logical_flow:
-        :return:
+        :return:a unique coflow_id
         """
         #TODO: realize a unique coflow_id generator
         return logical_flow.shuffle_id
@@ -35,13 +35,13 @@ class Coflow(object):
 
     def add_logical_flows(self, logical_flow):
         """
-        add logical_flow to logical_flows
+        add logical_flow to logical_flows(dict)
         :param logical_flow:
         :return:
         """
         assert isinstance(logical_flow, LogicalFlow),  'Wrong argument when adding a logical_flow to logical_flows'
         for (k, v) in self.logical_flows.iteritems():
-            if logical_flow.dst_ip == v.dst_ip and logical_flow.dst_port == v.dst_port:
+            if logical_flow.dst_ip == v.dst_ip and logical_flow.dst_port == v.dst_port and logical_flow.src_ip == v.src_ip:
                 v.append_logical_flow(logical_flow)
                 del self.logical_flows[k]
                 self.logical_flows[v.generate_logical_flow_id()] = v
