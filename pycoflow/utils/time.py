@@ -31,6 +31,7 @@ TIME_CONVERT_FUNCS = [lambda x: datetime.strptime(x, TIME_FORMAT_1),
                       lambda x: datetime.strptime(x, TIME_FORMAT_2),
                       lambda x: datetime.strptime(x, TIME_FORMAT_3),
                       lambda x: datetime.strptime(x, TIME_FORMAT_4),
+                      lambda x: datetime.strftime(x, SHORT_TIME_FORMAT),
                       lambda x:convert_epoch_time(x)]
 
 
@@ -82,6 +83,12 @@ class TimeUtils(object):
             return time_object.strftime(time_format)
         else:
             return time_object.strftime(TIME_FORMAT_1)
+
+    @staticmethod
+    def to_string(time_object):
+        assert isinstance(time_object, datetime), "Error: %s should be an instance of datetime"
+        return str(time_object.hour)+":"+str(time_object.minute)+":"+str(time_object.second)+"."+str(time_object.microsecond)
+
 
 if __name__ == '__main__':
     time_str = "Aug 29, 2014 15:28:33.312779000"

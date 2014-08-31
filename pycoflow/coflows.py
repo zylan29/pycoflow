@@ -1,12 +1,16 @@
 from coflow import Coflow
 from flow import LogicalFlow
+import datetime
 
 class Coflows(object):
     """
     all coflows
     """
+
     def __init__(self):
         self.coflows = {}
+        self.threshold1 = datetime.timedelta(0, 2)
+        self.threshold2 = datetime.timedelta(0, 0, 10)
 
     def __str__(self):
         return "\n".join(map(str, self.coflows.values()))
@@ -47,6 +51,7 @@ class Coflows(object):
                 return logical_flow.shuffle_id
         return None
         # return NotImplementedError()
+
     def _find_flow(self, packet):
         """
         find a proper coflow to place this packet
@@ -56,7 +61,8 @@ class Coflows(object):
         #TODO: compare packet with coflows[*].logical_flows[**],find *
         for (k, v) in self.coflows.iteritems():
             assert isinstance(v, Coflow), "wrong argument when a proper coflow to place a packet"
-            for k1 in v.logical_flows:
-                if packet.src_ip+':'+packet.src_port == k1:
+            for (k1, v1) in v.logical_flows.iteritems():
+                if packet.dst_ip == v1.dst_ip and packet.dst_port == v1.dst_port \
+                        and v1.start_time <= packet.packet_time <= v1.end_time+self.threshold1:
                     return k
         return None

@@ -10,7 +10,7 @@ class CoflowParse(object):
     """
     parse coflows
     """
-    def __init__(self,hosts):
+    def __init__(self, hosts):
         self.coflows = Coflows()
         self.hosts = hosts
 
@@ -45,8 +45,10 @@ class CoflowParse(object):
 
 if __name__ == '__main__':
     ip = IP()
-    hosts=ip.parse_hosts("C:\Users\Administrator\Downloads\hosts")
+    hosts = ip.parse_hosts("C:\Users\Administrator\Downloads\hosts")
     coflow_parse = CoflowParse(hosts)
-    coflow_parse.parse_log_file("C:\Users\Administrator\Downloads\log")
-    coflow_parse.parse_dir("C:\Users\Administrator\Downloads\\ts")
+    # coflow_parse.parse_log_file("C:\Users\Administrator\Downloads\logWordCount")
+    # coflow_parse.parse_dir("C:\Users\Administrator\Downloads\\tsWordCount")
+    coflow_parse.parse_log_file("C:\Users\Administrator\Downloads\logPageRank")
+    coflow_parse.parse_dir("C:\Users\Administrator\Downloads\\tsPageRank")
     print(coflow_parse.coflows)

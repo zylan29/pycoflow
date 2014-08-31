@@ -1,5 +1,4 @@
 from utils.time import TimeUtils
-import utils.ip
 from packet import Packet
 
 
@@ -31,49 +30,45 @@ class LogicalFlow():
     """
     a logical flow parsed form spark's log
     """
-    def __init__(self, start_time, shuffle_id, reduce_id, blocks, flow_size, src_ip, src_port):
+    def __init__(self, start_time, shuffle_id, reduce_id, blocks, flow_size, dst_ip, dst_port):
         self.start_time = start_time
         self.shuffle_id = shuffle_id
         self.reduce_id = reduce_id
         self.blocks = blocks
         self.size = flow_size
-        self.src_ip = src_ip
-        self.src_port = src_port
+        self.dst_ip = dst_ip
+        self.dst_port = dst_port
+        self.end_time = start_time
 
     def generate_logical_flow_id(self):
-        return self.src_ip+':'+self.src_port
+        return TimeUtils.to_string(self.start_time)+"---"+TimeUtils.to_string(self.end_time)+" "+self.dst_ip+':'+self.dst_port
 
     def append_logical_flow(self, logical_flow):
         assert isinstance(logical_flow, LogicalFlow), "Wrong argument when appending a logical_flow"
         self.blocks += logical_flow.blocks
         self.size += logical_flow.size
         self.start_time = self.start_time if self.start_time < logical_flow.start_time else logical_flow.start_time
+        self.end_time = self.end_time if self.end_time > logical_flow.start_time else logical_flow.start_time
 
     @staticmethod
-    def from_log_line(log_line,hosts):
+    def from_log_line(log_line, hosts):
         #TODO:parse a line from spark's log , return a LogicalFlow object
         try:
             fields = log_line.split(' ')
-            temp1 = fields[2].split('=')
-            temp2 = fields[3].split('=')
-            temp3 = fields[4].split('=')
-            temp4 = fields[5].split('=')
-            temp5 = fields[6].split('=')
-            temp6 = temp5[1].split(':')
-            [start_time, shuffle_id, reduce_id, blocks, size, src_name, src_port] =\
-                [fields[0]+' '+fields[1], temp1[1], temp2[1], temp3[1], temp4[1],
-                 temp6[0],temp6[1][:-1]]
+            [start_time, shuffle_id, reduce_id, blocks, size, dst_name, dst_port] =\
+                [fields[0]+' '+fields[1], fields[2].split('=')[1], fields[3].split('=')[1], fields[4].split('=')[1],
+                 fields[5].split('=')[1], fields[6].split('=')[1].split(':')[0],
+                 fields[6].split('=')[1].split(':')[1][:-1]]
             if len(start_time) == 21:
-                start_time = start_time + "000"
+                start_time += "000"
             start_time = TimeUtils.time_convert(start_time)
-            src_ip= hosts[src_name]
-            size = float(size)
-            size = int(size*1024)
+            dst_ip = hosts[dst_name]
+            size = int(size)
             blocks = int(blocks)
         except ValueError:
             return None
         else:
-            return LogicalFlow(start_time, shuffle_id, reduce_id, blocks, size, src_ip, src_port)
+            return LogicalFlow(start_time, shuffle_id, reduce_id, blocks, size, dst_ip, dst_port)
 
 
 class RealisticFlow(Flow):
@@ -85,6 +80,7 @@ class RealisticFlow(Flow):
         super(RealisticFlow, self).__init__(packet.packet_time, packet.src_ip, packet.dst_ip,
                                             packet.packet_size, packet.src_port, packet.dst_port, duration)
         self.flow_id = self._generate_flow_id(packet)
+        self.packet_num = 1
 
     def __str__(self):
         return "%s\t%s\t%s:%s--->%s:%s\t%d" % \
@@ -94,8 +90,7 @@ class RealisticFlow(Flow):
     @staticmethod
     def _generate_flow_id(packet):
         #TODO: realize a unique flow_id generator
-        return packet.src_ip+':'+packet.src_port+'-'+'>'+packet.dst_ip+':'+packet.dst_port
-        # return NotImplementedError()
+        return packet.src_ip+':'+packet.src_port+"->"+packet.dst_ip+':'+packet.dst_port
 
     def get_flow_id(self):
         return self.flow_id
@@ -111,3 +106,4 @@ class RealisticFlow(Flow):
         self.start_time = self.start_time if self.start_time < packet.packet_time else packet.packet_time
         self.end_time = TimeUtils.time_convert(packet.packet_time) + TimeUtils.time_delta_convert(duration)
         self.size += packet.packet_size
+        self.packet_num += 1
