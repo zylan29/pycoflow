@@ -6,8 +6,8 @@ TIME_FORMAT_1 = "%b %d, %Y %H:%M:%S.%f"
 TIME_FORMAT_2 = "%Y-%m-%d %H:%M:%S,%f"
 TIME_FORMAT_3 = "%b %d, %Y %H:%M:%S,%f"
 TIME_FORMAT_4 = "%y/%m/%d %H:%M:%S,%f"
-SHORT_TIME_FORMAT = "%H:%M:%S.%ff"
-
+SHORT_TIME_FORMAT_1 = "%H:%M:%S.%f"
+SHORT_TIME_FORMAT_2 = "%H:%M:%S,%f"
 
 
 def convert_epoch_time(epoch_time):
@@ -31,7 +31,8 @@ TIME_CONVERT_FUNCS = [lambda x: datetime.strptime(x, TIME_FORMAT_1),
                       lambda x: datetime.strptime(x, TIME_FORMAT_2),
                       lambda x: datetime.strptime(x, TIME_FORMAT_3),
                       lambda x: datetime.strptime(x, TIME_FORMAT_4),
-                      lambda x: datetime.strftime(x, SHORT_TIME_FORMAT),
+                      lambda x: datetime.strptime(x, SHORT_TIME_FORMAT_1),
+                      lambda x: datetime.strptime(x, SHORT_TIME_FORMAT_2),
                       lambda x:convert_epoch_time(x)]
 
 
@@ -92,5 +93,4 @@ class TimeUtils(object):
 
 if __name__ == '__main__':
     time_str = "Aug 29, 2014 15:28:33.312779000"
-    #time_str = "Aug 29, 2014 15:28:33.312779"
     print TimeUtils.time_convert(time_str)

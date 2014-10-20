@@ -5,13 +5,19 @@ class Packet(object):
     """
     a packet abstraction
     """
-    def __init__(self, packet_time, src_ip, src_port, dst_ip, dst_port, packet_size):
+    def __init__(self, shuffle_id, packet_time, src_ip, src_port, dst_ip, dst_port, packet_size):
+        self.shuffle_id = shuffle_id
         self.packet_time = packet_time
         self.src_ip = src_ip
         self.src_port = src_port
         self.dst_ip = dst_ip
         self.dst_port = dst_port
         self.packet_size = packet_size
+
+    def __str__(self):
+        return str(self.shuffle_id) + " " + TimeUtils.time_to_string(self.packet_time) + " " \
+               + self.src_ip + ":" + self.src_port + " " + self.dst_ip + ":" + self.dst_port \
+               + " " + str(self.packet_size)
 
     @staticmethod
     def from_line_str(flow_line):
@@ -21,12 +27,11 @@ class Packet(object):
         :return: a packet object
         """
         try:
-            [packet_time, src_ip, src_port, dst_ip, dst_port, packet_size] = flow_line.split("\t")
-            if len(packet_time) == 16 and packet_time.endswith("000"):
-                packet_time = packet_time[:-3]
+            [shuffle_code, packet_time, src_ip, src_port, dst_ip, dst_port, packet_size] = flow_line.split("\t")
+            shuffle_id = str((int(shuffle_code) / 4) - 1)
             packet_time = TimeUtils.time_convert(packet_time)
             packet_size = int(packet_size)
         except ValueError:
             return None
         else:
-            return Packet(packet_time, src_ip, src_port, dst_ip, dst_port, packet_size)
+            return Packet(shuffle_id, packet_time, src_ip, src_port, dst_ip, dst_port, packet_size)

@@ -1,8 +1,7 @@
 from packet import Packet
 from flow import LogicalFlow
 from flow import RealisticFlow
-
-
+from utils.time import TimeUtils
 
 
 class Coflow(object):
@@ -11,13 +10,17 @@ class Coflow(object):
     """
     def __init__(self, logical_flow):
         assert isinstance(logical_flow, LogicalFlow), 'Wrong argument when initializing a coflow with a logical_flow'
+        self.start_time = logical_flow.start_time
+        self.end_time = self.start_time
         self.coflow_id = self._generate_coflow_id(logical_flow)
         self.logical_flows = {logical_flow.generate_logical_flow_id(): logical_flow}
         self.realistic_flows = {}
 
-
     def __str__(self):
-        return "Coflow " + self.coflow_id + ":\n" + "\n".join(map(str, self.realistic_flows.values()))
+        return "Coflow " + str(self.coflow_id) + ":\n" + TimeUtils.time_to_string(self.start_time) + " " + \
+               str((self.end_time - self.start_time).total_seconds()) + '\n'+ "Logical Flows:\n" + \
+               "\n".join(map(str, self.logical_flows.values())) + "\n" + "Real Flows:\n" + \
+               "\n".join(map(str, self.realistic_flows.values()))
 
     @staticmethod
     def _generate_coflow_id(logical_flow):
@@ -26,9 +29,7 @@ class Coflow(object):
         :param logical_flow:
         :return:a unique coflow_id
         """
-        #TODO: realize a unique coflow_id generator
         return logical_flow.shuffle_id
-        # return NotImplementedError()
 
     def get_coflow_id(self):
         return self.coflow_id
@@ -68,9 +69,9 @@ class Coflow(object):
         :param packet: an object of Packet
         :return: if found return flow_id, else return None
         """
-        #TODO: realize this function
         assert isinstance(packet, Packet),  'Wrong argument when finding a packet to realistic_flow'
-        for k in self.realistic_flows:
-            if packet.src_ip+':'+packet.src_port+'-'+'>'+packet.dst_ip+':'+packet.dst_port == k:
-                return k
+        for flow_id in self.realistic_flows:
+            flow = self.realistic_flows[flow_id]
+            if packet.dst_ip == flow.dst_ip and packet.dst_port == flow.dst_port and packet.src_ip == flow.src_ip:
+                return flow_id
         return None

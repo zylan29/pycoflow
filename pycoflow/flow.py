@@ -1,4 +1,5 @@
 from utils.time import TimeUtils
+from utils.ip import host2ip
 from packet import Packet
 
 
@@ -42,8 +43,8 @@ class LogicalFlow():
         self.src_ip = src_ip
 
     def generate_logical_flow_id(self):
-        return TimeUtils.to_string(self.start_time)+"--"+TimeUtils.to_string(self.end_time)+" "+ \
-               self.src_ip+"->"+self.dst_ip+':'+self.dst_port
+        return TimeUtils.to_string(self.start_time)+"--"+TimeUtils.to_string(self.end_time) + " " \
+            + self.src_ip+"->"+self.dst_ip+':'+self.dst_port
 
     def append_logical_flow(self, logical_flow):
         assert isinstance(logical_flow, LogicalFlow), "Wrong argument when appending a logical_flow"
@@ -53,28 +54,24 @@ class LogicalFlow():
         self.end_time = self.end_time if self.end_time > logical_flow.start_time else logical_flow.start_time
 
     def __str__(self):
-        return "%s\t%s:%s\t%d" % \
-               (TimeUtils.time_to_string(self.start_time), self.dst_ip, self.dst_port, self.size)
+        return "%s %s %s %s:%s %d" % \
+               (TimeUtils.time_to_string(self.start_time), (self.end_time-self.start_time).total_seconds(), self.src_ip,
+                self.dst_ip, self.dst_port, self.size)
+
+    def update_end_time(self, end_time):
+        self.end_time = end_time
 
     @staticmethod
-    def from_log_line(log_line, hosts):
-        #TODO:parse a line from spark's log , return a LogicalFlow object
-        try:
-            fields = log_line.split(' ')
-            [start_time, shuffle_id, reduce_id, blocks, size, dst_name, dst_port, src_ip] =\
-                [fields[0]+' '+fields[1], fields[2].split('=')[1], fields[3].split('=')[1], fields[4].split('=')[1],
-                 fields[5].split('=')[1], fields[6].split('=')[1].split(':')[0], fields[6].split('=')[1].split(':')[1],
-                 fields[7][:-1]]
-            if len(start_time) == 21:
-                start_time += "000"
-            start_time = TimeUtils.time_convert(start_time)
-            dst_ip = hosts[dst_name]
-            size = int(size)
-            blocks = int(blocks)
-        except ValueError:
-            return None
-        else:
-            return LogicalFlow(start_time, shuffle_id, reduce_id, blocks, size, dst_ip, dst_port, src_ip)
+    def from_log_line(src_ip, log_line):
+        fields = log_line.strip().split(' ')
+        start_time_str = fields[0].split(":")[1] + " " + fields[1]
+        start_time = TimeUtils.time_convert(start_time_str)
+        [shuffle_id, reduce_id, blocks, size, dst] = map(lambda x: x.split("=")[1], fields[5:])
+        dst_name, dst_port = dst.split(':')
+        dst_ip = host2ip(dst_name)
+        size = int(size)
+        blocks = int(blocks)
+        return LogicalFlow(start_time, shuffle_id, reduce_id, blocks, size, dst_ip, dst_port, src_ip)
 
 
 class RealisticFlow(Flow):
@@ -85,6 +82,7 @@ class RealisticFlow(Flow):
         assert isinstance(packet, Packet), 'Wrong argument when initializing a flow'
         super(RealisticFlow, self).__init__(packet.packet_time, packet.src_ip, packet.dst_ip,
                                             packet.packet_size, packet.src_port, packet.dst_port, duration)
+        self.src_port = packet.src_port
         self.flow_id = self._generate_flow_id(packet)
         self.packet_num = 1
 
@@ -95,7 +93,6 @@ class RealisticFlow(Flow):
 
     @staticmethod
     def _generate_flow_id(packet):
-        #TODO: realize a unique flow_id generator
         return packet.src_ip+':'+packet.src_port+"->"+packet.dst_ip+':'+packet.dst_port
 
     def get_flow_id(self):
@@ -109,6 +106,7 @@ class RealisticFlow(Flow):
         :return: None
         """
         assert isinstance(packet, Packet), 'Wrong argument when adding a packet to flow'
+        assert packet.src_port == self.src_port, 'src_port number should be the same'
         self.start_time = self.start_time if self.start_time < packet.packet_time else packet.packet_time
         self.end_time = TimeUtils.time_convert(packet.packet_time) + TimeUtils.time_delta_convert(duration)
         self.size += packet.packet_size

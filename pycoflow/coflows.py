@@ -1,6 +1,7 @@
 from coflow import Coflow
 from flow import LogicalFlow
-import datetime
+from utils.time import TimeUtils
+
 
 class Coflows(object):
     """
@@ -9,7 +10,8 @@ class Coflows(object):
 
     def __init__(self):
         self.coflows = {}
-        self.threshold1 = datetime.timedelta(0, 2)
+        self.coflow_ids = []
+        self.threshold1 = TimeUtils.time_delta_convert(1)
 
     def __str__(self):
         return "\n".join(map(str, self.coflows.values()))
@@ -24,7 +26,11 @@ class Coflows(object):
         coflow_id = self._find_coflow(logical_flow)
         if not coflow_id:
             new_coflow = Coflow(logical_flow)
-            self.coflows[new_coflow.get_coflow_id()] = new_coflow
+            new_coflow_id = new_coflow.get_coflow_id()
+            self.coflows[new_coflow_id] = new_coflow
+            if len(self.coflow_ids) >= 1:
+                self.coflows[self.coflow_ids[-1]].end_time = new_coflow.start_time
+            self.coflow_ids.append(new_coflow_id)
         else:
             assert isinstance(self.coflows[coflow_id], Coflow)
             self.coflows[coflow_id].add_logical_flows(logical_flow)
@@ -49,7 +55,6 @@ class Coflows(object):
         if logical_flow.shuffle_id in self.coflows:
                 return logical_flow.shuffle_id
         return None
-        # return NotImplementedError()
 
     def _find_flow(self, packet):
         """
@@ -57,11 +62,8 @@ class Coflows(object):
         :param packet:
         :return:
         """
-        #TODO: compare packet with coflows[*].logical_flows[**],find *
-        for (k, v) in self.coflows.iteritems():
-            assert isinstance(v, Coflow), "wrong argument when a proper coflow to place a packet"
-            for (k1, v1) in v.logical_flows.iteritems():
-                if packet.dst_ip == v1.dst_ip and packet.dst_port == v1.dst_port and packet.src_ip == v1.src_ip \
-                        and v1.start_time <= packet.packet_time <= v1.end_time+self.threshold1:
-                    return k
+        for (coflow_id, coflow) in self.coflows.iteritems():
+            assert isinstance(coflow, Coflow), "wrong argument when a proper coflow to place a packet"
+            if coflow_id == packet.shuffle_id:
+                return coflow_id
         return None
