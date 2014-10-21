@@ -6,6 +6,7 @@ from flow import LogicalFlow
 from utils.ip import parse_hosts
 from utils.ip import host2ip
 from filter import packet_filter
+from pcap_parse import parse_pcap
 
 
 class CoflowParse(object):
@@ -27,6 +28,12 @@ class CoflowParse(object):
             if flow_file.endswith(".txt"):
                 flow_file = root + flow_file
                 self.parse_file(flow_file)
+
+    def parse_pcap_file(self, pcap_file):
+        packets = parse_pcap(pcap_file)
+        for packet in packets:
+            if not packet_filter(packet):
+                self.coflows.add_packet(packet)
 
     def parse_file(self, flow_file):
         i = 1
@@ -76,6 +83,6 @@ if __name__ == '__main__':
     parse_hosts("/etc/hosts")
     coflow_parse = CoflowParse()
     coflow_parse.parse_log_dir("/home/zyang/telogs/8-logs")
-    coflow_parse.parse_dir("/home/zyang/telogs/8-pcap")
+    coflow_parse.parse_pcap_file("/home/zyang/telogs/8-pcap/host134.pca")
     coflow_parse.start_time_offsets()
     coflow_parse.print_coflows()
