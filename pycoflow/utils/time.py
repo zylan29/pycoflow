@@ -1,6 +1,6 @@
 from datetime import datetime
 from datetime import timedelta
-import locale
+
 
 TIME_FORMAT_1 = "%b %d, %Y %H:%M:%S.%f"
 TIME_FORMAT_2 = "%Y-%m-%d %H:%M:%S,%f"
@@ -16,14 +16,14 @@ def convert_epoch_time(epoch_time):
     :param epoch_time: an integer value
     :return: a datetime object
     """
-    length = len(epoch_time)
     if isinstance(epoch_time, str):
-        epoch_time = int(epoch_time)
+        epoch_time = float(epoch_time)
+    length = len(str(int(epoch_time)))
     if length == 13:
         time_object = datetime.fromtimestamp(epoch_time / 1000)
         micro_seconds = timedelta(milliseconds=(epoch_time % 1000))
         return time_object + micro_seconds
-    elif length == 10:
+    else:
         time_object = datetime.fromtimestamp(epoch_time)
         return time_object
 

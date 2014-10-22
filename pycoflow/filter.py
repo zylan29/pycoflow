@@ -13,5 +13,5 @@ def packet_filter(packet):
     if packet.dst_ip in IP_FILTER or packet.src_ip in IP_FILTER:
         return True
     if packet.src_port in PORT_FILTER or packet.dst_port in PORT_FILTER:
-            return True
+        return True
     return False

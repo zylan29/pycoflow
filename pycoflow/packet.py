@@ -6,12 +6,12 @@ class Packet(object):
     a packet abstraction
     """
     def __init__(self, shuffle_id, packet_time, src_ip, src_port, dst_ip, dst_port, packet_size):
-        self.shuffle_id = shuffle_id
+        self.shuffle_id = str(shuffle_id)
         self.packet_time = packet_time
         self.src_ip = src_ip
-        self.src_port = src_port
+        self.src_port = str(src_port)
         self.dst_ip = dst_ip
-        self.dst_port = dst_port
+        self.dst_port = str(dst_port)
         self.packet_size = packet_size
 
     def __str__(self):

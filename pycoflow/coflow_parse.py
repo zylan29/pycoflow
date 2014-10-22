@@ -29,12 +29,6 @@ class CoflowParse(object):
                 flow_file = root + flow_file
                 self.parse_file(flow_file)
 
-    def parse_pcap_file(self, pcap_file):
-        packets = parse_pcap(pcap_file)
-        for packet in packets:
-            if not packet_filter(packet):
-                self.coflows.add_packet(packet)
-
     def parse_file(self, flow_file):
         i = 1
         with open(flow_file) as f:
@@ -46,6 +40,22 @@ class CoflowParse(object):
                 packet = Packet.from_line_str(flow_line)
                 if not packet_filter(packet):
                     self.coflows.add_packet(packet)
+
+    def parse_pcap_dir(self, pcap_dir):
+        root, dirs, flow_files = os.walk(pcap_dir).next()
+        if not root.endswith("/"):
+            root += "/"
+        for flow_file in flow_files:
+            flow_file = root + flow_file
+            self.parse_pcap_file(flow_file)
+
+    def parse_pcap_file(self, pcap_file):
+        host_name = pcap_file.split("/")[-1].split(".")[0]
+        host_ip = host2ip(host_name)
+        packets = parse_pcap(host_ip, pcap_file)
+        for packet in packets:
+            if not packet_filter(packet):
+                self.coflows.add_packet(packet)
 
     def parse_log_dir(self, log_files_dir):
         root, dirs, flow_files = os.walk(log_files_dir).next()
@@ -83,6 +93,6 @@ if __name__ == '__main__':
     parse_hosts("/etc/hosts")
     coflow_parse = CoflowParse()
     coflow_parse.parse_log_dir("/home/zyang/telogs/8-logs")
-    coflow_parse.parse_pcap_file("/home/zyang/telogs/8-pcap/host134.pca")
+    coflow_parse.parse_pcap_dir("/home/zyang/telogs/8-pcap/")
     coflow_parse.start_time_offsets()
     coflow_parse.print_coflows()
