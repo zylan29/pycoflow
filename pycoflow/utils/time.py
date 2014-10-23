@@ -46,6 +46,8 @@ class TimeUtils(object):
         """
         if isinstance(time_express, datetime):
             return time_express
+        elif isinstance(time_express, float):
+            return convert_epoch_time(time_express)
         else:
             time_float = time_express.rfind(".")
             if len(time_express) - time_float == 10 and time_express.endswith("000"):

@@ -75,3 +75,8 @@ class Coflow(object):
             if packet.dst_ip == flow.dst_ip and packet.dst_port == flow.dst_port and packet.src_ip == flow.src_ip:
                 return flow_id
         return None
+
+    def add_retransmit_flows(self, packet):
+        flow_id = self._find_realistic_flow(packet)
+        if flow_id:
+            self.realistic_flows[flow_id].add_retransmit_packet(packet)

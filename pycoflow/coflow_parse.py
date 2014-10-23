@@ -1,12 +1,11 @@
-import os
-
 from coflows import Coflows
 from packet import Packet
 from flow import LogicalFlow
-from utils.ip import parse_hosts
-from utils.ip import host2ip
+from utils.ip import *
+from utils.path import *
 from filter import packet_filter
 from pcap_parse import parse_pcap
+from pcap_parse import analysis_retransmit_dir
 
 
 class CoflowParse(object):
@@ -21,13 +20,8 @@ class CoflowParse(object):
             print self.coflows.coflows[coflow_id]
 
     def parse_dir(self, flow_files_dir):
-        root, dirs, flow_files = os.walk(flow_files_dir).next()
-        if not root.endswith("/"):
-            root += "/"
-        for flow_file in flow_files:
-            if flow_file.endswith(".txt"):
-                flow_file = root + flow_file
-                self.parse_file(flow_file)
+        for flow_file in list_files(flow_files_dir, 'txt'):
+            self.parse_file(flow_file)
 
     def parse_file(self, flow_file):
         i = 1
@@ -41,32 +35,32 @@ class CoflowParse(object):
                 if not packet_filter(packet):
                     self.coflows.add_packet(packet)
 
+    def parse_retransmit(self, pcap_dir):
+        retransmit_dir = analysis_retransmit_dir(pcap_dir)
+        for retransmit_file in list_files(retransmit_dir):
+            packets = parse_pcap(retransmit_file)
+            for packet in packets:
+                if not packet_filter(packet):
+                    self.coflows.add_retransmit_packet(packet)
+
     def parse_pcap_dir(self, pcap_dir):
-        root, dirs, flow_files = os.walk(pcap_dir).next()
-        if not root.endswith("/"):
-            root += "/"
-        for flow_file in flow_files:
-            flow_file = root + flow_file
+        for flow_file in list_files(pcap_dir):
             self.parse_pcap_file(flow_file)
 
     def parse_pcap_file(self, pcap_file):
-        host_name = pcap_file.split("/")[-1].split(".")[0]
+        host_name = filename_to_hostname(pcap_file)
         host_ip = host2ip(host_name)
-        packets = parse_pcap(host_ip, pcap_file)
+        packets = parse_pcap(pcap_file, 'src host %s' % host_ip)
         for packet in packets:
             if not packet_filter(packet):
                 self.coflows.add_packet(packet)
 
     def parse_log_dir(self, log_files_dir):
-        root, dirs, flow_files = os.walk(log_files_dir).next()
-        if not root.endswith("/"):
-            root += "/"
-        for log_file in flow_files:
-            log_file = root+log_file
+        for log_file in list_files(log_files_dir):
             self.parse_log_file(log_file)
 
     def parse_log_file(self, log_file):
-        host_name = log_file.split("/")[-1].split(".")[0]
+        host_name = filename_to_hostname(log_file)
         host_ip = host2ip(host_name)
         with open(log_file) as f:
             log_lines = f.readlines()
@@ -94,5 +88,5 @@ if __name__ == '__main__':
     coflow_parse = CoflowParse()
     coflow_parse.parse_log_dir("/home/zyang/telogs/8-logs")
     coflow_parse.parse_pcap_dir("/home/zyang/telogs/8-pcap/")
-    coflow_parse.start_time_offsets()
+    coflow_parse.parse_retransmit("/home/zyang/telogs/8-pcap/")
     coflow_parse.print_coflows()

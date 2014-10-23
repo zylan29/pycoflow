@@ -85,11 +85,13 @@ class RealisticFlow(Flow):
         self.src_port = packet.src_port
         self.flow_id = self._generate_flow_id(packet)
         self.packet_num = 1
+        self.retransmit_bytes = 0
 
     def __str__(self):
-        return "%s\t%s\t%s:%s--->%s:%s\t%d" % \
+        return "%s\t%s\t%s:%s->%s:%s\t%d\t%d" % \
                (TimeUtils.time_to_string(self.start_time),
-                self.duration.total_seconds(), self.src_ip, self.src_port, self.dst_ip, self.dst_port, self.size)
+                self.duration.total_seconds(), self.src_ip, self.src_port, self.dst_ip, self.dst_port,
+                self.size, self.retransmit_bytes)
 
     @staticmethod
     def _generate_flow_id(packet):
@@ -111,3 +113,6 @@ class RealisticFlow(Flow):
         self.end_time = TimeUtils.time_convert(packet.packet_time) + TimeUtils.time_delta_convert(duration)
         self.size += packet.packet_size
         self.packet_num += 1
+
+    def add_retransmit_packet(self, packet):
+        self.retransmit_bytes += packet.packet_size

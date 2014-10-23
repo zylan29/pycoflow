@@ -45,6 +45,11 @@ class Coflows(object):
         if coflow_id:
             self.coflows[coflow_id].add_realistic_flows(packet)
 
+    def add_retransmit_packet(self, packet):
+        coflow_id = self._find_flow(packet)
+        if coflow_id:
+            self.coflows[coflow_id].add_retransmit_flows(packet)
+
     def _find_coflow(self, logical_flow):
         """
         find a proper coflow to place this logical_flow
