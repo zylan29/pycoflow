@@ -43,9 +43,11 @@ class Coflow(object):
         assert isinstance(logical_flow, LogicalFlow),  'Wrong argument when adding a logical_flow to logical_flows'
         for (k, v) in self.logical_flows.iteritems():
             if logical_flow.dst_ip == v.dst_ip and logical_flow.dst_port == v.dst_port and logical_flow.src_ip == v.src_ip:
-                v.append_logical_flow(logical_flow)
-                del self.logical_flows[k]
-                self.logical_flows[v.generate_logical_flow_id()] = v
+                if logical_flow.reduce_id == v.reduce_id:
+                    print "WARN: logical flow duplicates:"
+                    print logical_flow
+                else:
+                    v.append_logical_flow(logical_flow)
                 return
         self.logical_flows[logical_flow.generate_logical_flow_id()] = logical_flow
 
@@ -58,8 +60,11 @@ class Coflow(object):
         assert isinstance(packet, Packet),  'Wrong argument when adding a packet to coflow'
         flow_id = self._find_realistic_flow(packet)
         if not flow_id:
-            new_flow = RealisticFlow(packet)
-            self.realistic_flows[new_flow.get_flow_id()] = new_flow
+            for logical_flow in self.logical_flows.values():
+                if packet.dst_ip == logical_flow.dst_ip and packet.dst_port == logical_flow.dst_port:
+                    new_flow = RealisticFlow(packet)
+                    self.realistic_flows[new_flow.get_flow_id()] = new_flow
+                    return
         else:
             self.realistic_flows[flow_id].add_packet(packet)
 

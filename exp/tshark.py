@@ -1,6 +1,5 @@
 #!/usr/bin/python
 
-import os, sys
 import subprocess
 
 
@@ -11,7 +10,7 @@ def run_tshark(slaves_file):
             if h.startswith("#"):
                 continue
             host = h.strip()
-            cmd = "ssh root@%s nohup tshark -i eth0 -s 100 -w ts.pcap tcp &" % host
+            cmd = 'ssh root@%s nohup tshark -i eth0 -s 100 -w ts.pcap "tcp" &' % host
             p = subprocess.Popen(cmd, shell=True, stderr=None)
             proc.append(p)
 
