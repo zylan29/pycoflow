@@ -16,7 +16,7 @@ class CoflowParse(object):
         self.coflows = Coflows()
 
     def print_coflows(self):
-        for coflow_id in self.coflows.coflow_ids[1:]:
+        for coflow_id in self.coflows.coflow_ids:
             print self.coflows.coflows[coflow_id]
 
     def parse_dir(self, flow_files_dir):
@@ -86,7 +86,7 @@ class CoflowParse(object):
 if __name__ == '__main__':
     parse_hosts("/etc/hosts")
     coflow_parse = CoflowParse()
-    coflow_parse.parse_log_dir("/home/zyang/telogs/8-logs")
-    coflow_parse.parse_pcap_dir("/home/zyang/telogs/8-pcap/")
-    coflow_parse.parse_retransmit("/home/zyang/telogs/8-pcap/")
+    coflow_parse.parse_log_dir("/home/zyang/telogs/1-logs")
+    coflow_parse.parse_pcap_dir("/home/zyang/telogs/1-pcap/")
+    #coflow_parse.parse_retransmit("/home/zyang/telogs/1-pcap/")
     coflow_parse.print_coflows()

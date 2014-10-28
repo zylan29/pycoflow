@@ -28,8 +28,8 @@ class Coflows(object):
             new_coflow = Coflow(logical_flow)
             new_coflow_id = new_coflow.get_coflow_id()
             self.coflows[new_coflow_id] = new_coflow
-            if len(self.coflow_ids) >= 1:
-                self.coflows[self.coflow_ids[-1]].end_time = new_coflow.start_time
+            #if len(self.coflow_ids) >= 1:
+            #    self.coflows[self.coflow_ids[-1]].end_time = new_coflow.start_time
             self.coflow_ids.append(new_coflow_id)
         else:
             assert isinstance(self.coflows[coflow_id], Coflow)
@@ -57,8 +57,8 @@ class Coflows(object):
         :return:
         """
         assert isinstance(logical_flow, LogicalFlow)
-        if logical_flow.shuffle_id in self.coflows:
-                return logical_flow.shuffle_id
+        if logical_flow.stage_id in self.coflows:
+                return logical_flow.stage_id
         return None
 
     def _find_flow(self, packet):
@@ -69,6 +69,7 @@ class Coflows(object):
         """
         for (coflow_id, coflow) in self.coflows.iteritems():
             assert isinstance(coflow, Coflow), "wrong argument when a proper coflow to place a packet"
-            if coflow_id == packet.shuffle_id:
-                return coflow_id
+            if str(int(coflow_id) % 63) == packet.stage_id:
+                if coflow.contains(packet):
+                    return coflow_id
         return None
