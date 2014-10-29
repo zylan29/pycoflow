@@ -3,7 +3,7 @@ from flow import LogicalFlow
 from utils.time import TimeUtils
 
 
-class Coflows(object):
+class Application(object):
     """
     all coflows
     """
@@ -28,8 +28,6 @@ class Coflows(object):
             new_coflow = Coflow(logical_flow)
             new_coflow_id = new_coflow.get_coflow_id()
             self.coflows[new_coflow_id] = new_coflow
-            #if len(self.coflow_ids) >= 1:
-            #    self.coflows[self.coflow_ids[-1]].end_time = new_coflow.start_time
             self.coflow_ids.append(new_coflow_id)
         else:
             assert isinstance(self.coflows[coflow_id], Coflow)
@@ -44,6 +42,9 @@ class Coflows(object):
         coflow_id = self._find_flow(packet)
         if coflow_id:
             self.coflows[coflow_id].add_realistic_flows(packet)
+            return coflow_id
+        else:
+            return None
 
     def add_retransmit_packet(self, packet):
         coflow_id = self._find_flow(packet)

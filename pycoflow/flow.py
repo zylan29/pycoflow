@@ -31,7 +31,7 @@ class LogicalFlow():
     """
     a logical flow parsed form spark's log
     """
-    def __init__(self, start_time, stage_id, blocks, flow_size, dst_ip, dst_port, src_ip):
+    def __init__(self, start_time, stage_id, blocks, flow_size, dst_ip, dst_port, src_ip, app_id=''):
         self.start_time = start_time
         self.stage_id = stage_id
         self.blocks = blocks
@@ -40,6 +40,7 @@ class LogicalFlow():
         self.dst_port = dst_port
         self.end_time = start_time
         self.src_ip = src_ip
+        self.app_id = app_id
 
     def __str__(self):
         return "%s %s %s %s:%s %d" % \
@@ -59,6 +60,7 @@ class LogicalFlow():
     @staticmethod
     def from_log_line(src_ip, log_line):
         fields = log_line.strip().split(' ')
+        app_id = fields[0].split('/')[5].strip()
         start_time_str = fields[0].split(":")[1] + " " + fields[1]
         start_time = TimeUtils.time_convert(start_time_str)
         [stage_id, blocks, size, dst] = map(lambda x: x.split("=")[1], fields[5:])
@@ -66,7 +68,7 @@ class LogicalFlow():
         dst_ip = host2ip(dst_name)
         size = int(size)
         blocks = int(blocks)
-        return LogicalFlow(start_time, stage_id, blocks, size, dst_ip, dst_port, src_ip)
+        return LogicalFlow(start_time, stage_id, blocks, size, dst_ip, dst_port, src_ip, app_id)
 
 
 class RealisticFlow(Flow):

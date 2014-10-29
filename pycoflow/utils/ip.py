@@ -20,3 +20,10 @@ def host2ip(host_name, hosts_file=''):
         parse_hosts(hosts_file)
     else:
         return hosts[host_name]
+
+
+def ip2int(ip):
+    ip_int = 0x0
+    for ip_elem in map(int, ip.split('.')):
+        ip_int = ip_int * 256 + ip_elem
+    return ip_int
