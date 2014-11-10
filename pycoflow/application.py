@@ -70,7 +70,7 @@ class Application(object):
         """
         for (coflow_id, coflow) in self.coflows.iteritems():
             assert isinstance(coflow, Coflow), "wrong argument when a proper coflow to place a packet"
-            if str(int(coflow_id) % 63) == packet.stage_id:
+            if int(coflow_id) % 63 == int(packet.stage_id):
                 if coflow.contains(packet):
                     return coflow_id
         return None

@@ -50,7 +50,10 @@ class Coflow(object):
     def contains(self, packet):
         assert isinstance(packet, Packet), 'Wrong argument when adding a packet to coflow'
         if self.start_time - START_TIME_THRESHOLD < packet.packet_time < self.end_time + END_TIME_THRESHOLD:
-            return True
+            for logical_flow in self.logical_flows.values():
+                if packet.dst_ip == logical_flow.dst_ip and packet.dst_port == logical_flow.dst_port:
+                    return True
+            return False
         else:
             return False
 
