@@ -4,6 +4,7 @@ from packet import Packet
 IP_FILTER = ["192.168.1.1", "192.168.1.12"]
 PORT_FILTER = ["22"]
 SHUFFLE_ID_FILTER = ["-1"]
+SIZE_FILTER = 52
 
 
 def packet_filter(packet):
@@ -13,5 +14,7 @@ def packet_filter(packet):
     if packet.dst_ip in IP_FILTER or packet.src_ip in IP_FILTER:
         return True
     if packet.src_port in PORT_FILTER or packet.dst_port in PORT_FILTER:
+        return True
+    if packet.packet_size <= SIZE_FILTER:
         return True
     return False

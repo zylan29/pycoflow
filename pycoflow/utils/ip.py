@@ -14,12 +14,10 @@ def parse_hosts(hosts_file):
                 hosts[host_name] = ip
 
 
-def host2ip(host_name, hosts_file=''):
+def host2ip(host_name, hosts_file='/etc/hosts'):
     if hosts == {}:
-        assert hosts_file != '', "No hosts file specified!"
         parse_hosts(hosts_file)
-    else:
-        return hosts[host_name]
+    return hosts[host_name]
 
 
 def ip2int(ip):

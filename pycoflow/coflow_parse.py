@@ -25,15 +25,15 @@ class CoflowParse(object):
     def __init__(self):
         self.applications = {}
 
+    def __str__(self):
+        return '\n'.join(map(str, self.applications.values()))
+
     def parse_applications(self, applications_file):
         with open(applications_file, 'r') as f:
             for app in map(lambda x: x.strip(), f.readlines()):
                 if app not in self.applications:
                     self.applications[app] = Application()
         print self.applications.keys()
-
-    def print_coflows(self):
-        print '\n'.join(map(str, self.applications.values()))
 
     def parse_retransmit(self, pcap_dir):
         retransmit_dir = analysis_retransmit_dir(pcap_dir)
@@ -43,23 +43,27 @@ class CoflowParse(object):
                 if not packet_filter(packet):
                     self.applications.add_retransmit_packet(packet)
 
-    def parse_pcap_dir(self, pcap_dir):
+    def parse_pcap_dir(self, pcap_dir, packets_file='packet.txt'):
         for flow_file in list_files(pcap_dir):
-            self.parse_pcap_file(flow_file)
+            self.parse_pcap_file(flow_file, packets_file)
 
-    def parse_pcap_file(self, pcap_file):
+    def parse_pcap_file(self, pcap_file, packets_file='packet.txt'):
         host_name = filename_to_hostname(pcap_file)
         host_ip = host2ip(host_name)
         packets = parse_pcap(pcap_file, 'src host %s' % host_ip)
-        f = open("packet.txt", 'aw')
+        f = open(packets_file, 'aw')
         for packet in packets:
             if not packet_filter(packet):
+                found = False
                 for app_id in self.applications:
                     coflow_id = self.applications[app_id].add_packet(packet)
                     if coflow_id:
                         packet_str = packet_coflow_str(packet, coflow_id, app_id)
                         f.write(packet_str + "\n")
+                        found = True
                         break
+                if not found:
+                    print packet
         f.close()
 
     def parse_log_dir(self, log_files_dir):
@@ -95,5 +99,4 @@ if __name__ == '__main__':
     coflow_parse = CoflowParse()
     coflow_parse.parse_applications('app.txt')
     coflow_parse.parse_log_dir("/home/zyang/telogs/3-logs")
-    coflow_parse.parse_pcap_file("/home/zyang/telogs/3-pcap/host126.pcap")
-    #coflow_parse.print_coflows()
+    coflow_parse.parse_pcap_file("/home/zyang/telogs/3-pcap/host117.pcap")

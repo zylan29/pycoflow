@@ -5,7 +5,7 @@ from utils.time import TimeUtils
 
 
 START_TIME_THRESHOLD = TimeUtils.time_delta_convert(1.0)
-END_TIME_THRESHOLD = TimeUtils.time_delta_convert(5.0)
+END_TIME_THRESHOLD = TimeUtils.time_delta_convert(1.0)
 
 
 class Coflow(object):
@@ -49,13 +49,20 @@ class Coflow(object):
 
     def contains(self, packet):
         assert isinstance(packet, Packet), 'Wrong argument when adding a packet to coflow'
-        if self.start_time - START_TIME_THRESHOLD < packet.packet_time < self.end_time + END_TIME_THRESHOLD:
-            for logical_flow in self.logical_flows.values():
-                if packet.dst_ip == logical_flow.dst_ip and packet.dst_port == logical_flow.dst_port:
+        for logical_flow in self.logical_flows.values():
+            if str(packet.dst_ip) == str(logical_flow.dst_ip) and str(packet.dst_port) == str(logical_flow.dst_port):
+                if not (self.start_time - START_TIME_THRESHOLD < packet.packet_time < self.end_time + END_TIME_THRESHOLD):
+                    #print 'WARN: ', self.coflow_id, ' ', packet
+                    return False
+                else:
                     return True
-            return False
-        else:
-            return False
+        return False
+
+    def update_time(self, packet):
+        if packet.packet_time < self.start_time:
+            self.start_time = packet.packet_time
+        elif packet.packet_time > self.end_time:
+            self.end_time = packet.packet_time
 
     def add_realistic_flows(self, packet):
         """
@@ -70,9 +77,11 @@ class Coflow(object):
                 if packet.dst_ip == logical_flow.dst_ip and packet.dst_port == logical_flow.dst_port:
                     new_flow = RealisticFlow(packet)
                     self.realistic_flows[new_flow.get_flow_id()] = new_flow
+                    self.update_time(packet)
                     return
         else:
             self.realistic_flows[flow_id].add_packet(packet)
+            self.update_time(packet)
 
     def _find_realistic_flow(self, packet):
         """
