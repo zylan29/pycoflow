@@ -39,7 +39,7 @@ def run_wiki_13(spark_dir, cores=72):
     cmd = "%s/bin/spark-submit --master spark://master:7077  --total-executor-cores %d --executor-memory 7g " \
           "--class org.apache.spark.examples.bagel.WikipediaPageRank " \
           "/home/zyang/WikiPageRank/target/scala-2.10/wikipagerank_2.10-1.0.jar " \
-          "hdfs://192.168.1.12:9000/freebase-13G 1 100 True" % (spark_dir, cores)
+          "hdfs://192.168.1.12:9000/freebase-13G 1 %d True" % (spark_dir, cores, cores)
     p = subprocess.Popen(cmd, shell=True, universal_newlines=True, stdout=logfile, stderr=logfile)
     return p
 
@@ -53,7 +53,7 @@ def run_wiki_26(spark_dir, cores=72):
     cmd = "%s/bin/spark-submit --master spark://master:7077  --total-executor-cores %d --executor-memory 7g " \
           "--class org.apache.spark.examples.bagel.WikipediaPageRank " \
           "/home/zyang/WikiPageRank/target/scala-2.10/wikipagerank_2.10-1.0.jar " \
-          "hdfs://192.168.1.12:9000/freebase-26G 1 100 True" % (spark_dir, cores)
+          "hdfs://192.168.1.12:9000/freebase-26G 1 %d True" % (spark_dir, cores, cores)
     p = subprocess.Popen(cmd, shell=True, universal_newlines=True, stdout=logfile, stderr=logfile)
     return p
 

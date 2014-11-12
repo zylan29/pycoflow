@@ -98,5 +98,5 @@ if __name__ == '__main__':
     parse_hosts("/etc/hosts")
     coflow_parse = CoflowParse()
     coflow_parse.parse_applications('app.txt')
-    coflow_parse.parse_log_dir("/home/zyang/telogs/3-logs")
-    coflow_parse.parse_pcap_file("/home/zyang/telogs/3-pcap/host117.pcap")
+    coflow_parse.parse_log_dir("/home/zyang/telogs/5-logs")
+    coflow_parse.parse_pcap_dir("/home/zyang/telogs/5-pcap")

@@ -5,7 +5,7 @@ from utils.time import TimeUtils
 
 
 START_TIME_THRESHOLD = TimeUtils.time_delta_convert(1.0)
-END_TIME_THRESHOLD = TimeUtils.time_delta_convert(1.0)
+END_TIME_THRESHOLD = TimeUtils.time_delta_convert(10.0)
 
 
 class Coflow(object):
@@ -52,7 +52,6 @@ class Coflow(object):
         for logical_flow in self.logical_flows.values():
             if str(packet.dst_ip) == str(logical_flow.dst_ip) and str(packet.dst_port) == str(logical_flow.dst_port):
                 if not (self.start_time - START_TIME_THRESHOLD < packet.packet_time < self.end_time + END_TIME_THRESHOLD):
-                    #print 'WARN: ', self.coflow_id, ' ', packet
                     return False
                 else:
                     return True
