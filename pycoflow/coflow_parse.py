@@ -94,8 +94,10 @@ class CoflowParse(object):
         with open(flows_file, 'w') as f:
             for app_id in self.applications:
                 for coflow_id in self.applications[app_id].coflows:
+                    flow_id = app_id + '-' + coflow_id
                     for flow in self.applications[app_id].coflows[coflow_id].realistic_flows.values():
-                        f.write(flow.output_flow())
+                        f.write(flow.output_flow(flow_id))
+                        f.write('\n')
 
     def start_time_offsets(self):
         for coflow_id in self.applications.coflow_ids[1:]:
