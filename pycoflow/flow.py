@@ -111,5 +111,10 @@ class RealisticFlow(Flow):
         self.size += packet.packet_size
         self.packet_num += 1
 
+    def output_flow(self, coflow_id):
+        out_str = ' '.join(map(str, [coflow_id, TimeUtils.time_offset(self.start_time), self.src_ip, self.src_port,
+                                     self.dst_ip, self.dst_port, self.size]))
+        return out_str
+
     def add_retransmit_packet(self, packet):
         self.retransmit_bytes += packet.packet_size

@@ -24,6 +24,7 @@ class CoflowParse(object):
     """
     def __init__(self):
         self.applications = {}
+        self.start_time = None
 
     def __str__(self):
         return '\n'.join(map(str, self.applications.values()))
@@ -48,11 +49,19 @@ class CoflowParse(object):
             self.parse_pcap_file(flow_file, packets_file)
 
     def parse_pcap_file(self, pcap_file, packets_file='packet.txt'):
+        """
+        Output parsed packets to packets_file
+        """
         host_name = filename_to_hostname(pcap_file)
         host_ip = host2ip(host_name)
         packets = parse_pcap(pcap_file, 'src host %s' % host_ip)
         f = open(packets_file, 'aw')
         for packet in packets:
+            if not self.start_time:
+                self.start_time = packet.packet_time
+            else:
+                if packet.packet_time < self.start_time:
+                    self.start_time = packet.packet_time
             if not packet_filter(packet):
                 found = False
                 for app_id in self.applications:
@@ -81,6 +90,13 @@ class CoflowParse(object):
                     continue
                 self.applications[logical_flow.app_id].add_logical_flow(logical_flow)
 
+    def output_flows(self, flows_file):
+        with open(flows_file, 'w') as f:
+            for app_id in self.applications:
+                for coflow_id in self.applications[app_id].coflows:
+                    for flow in self.applications[app_id].coflows[coflow_id].realistic_flows.values():
+                        f.write(flow.output_flow())
+
     def start_time_offsets(self):
         for coflow_id in self.applications.coflow_ids[1:]:
             earliest_time = 0
@@ -100,3 +116,4 @@ if __name__ == '__main__':
     coflow_parse.parse_applications('app.txt')
     coflow_parse.parse_log_dir("/home/zyang/telogs/5-logs")
     coflow_parse.parse_pcap_dir("/home/zyang/telogs/5-pcap")
+    coflow_parse.output_flows('flows.txt')

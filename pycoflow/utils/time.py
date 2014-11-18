@@ -88,8 +88,9 @@ class TimeUtils(object):
             return time_object.strftime(TIME_FORMAT_1)
 
     @staticmethod
-    def time_offset(time_object):
-        start_time = TimeUtils.time_convert("Oct 27, 2014 00:00:00.000000000")
+    def time_offset(time_object, start_time="Oct 27, 2014 00:00:00.000000000"):
+        if not isinstance(start_time, datetime):
+            start_time = TimeUtils.time_convert(start_time)
         return (time_object - start_time).total_seconds()
 
 if __name__ == '__main__':

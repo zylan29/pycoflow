@@ -10,7 +10,6 @@ class Application(object):
 
     def __init__(self):
         self.coflows = {}
-        self.coflow_ids = []
         self.threshold1 = TimeUtils.time_delta_convert(1)
 
     def __str__(self):
@@ -28,7 +27,6 @@ class Application(object):
             new_coflow = Coflow(logical_flow)
             new_coflow_id = new_coflow.get_coflow_id()
             self.coflows[new_coflow_id] = new_coflow
-            self.coflow_ids.append(new_coflow_id)
         else:
             assert isinstance(self.coflows[coflow_id], Coflow)
             self.coflows[coflow_id].add_logical_flows(logical_flow)
