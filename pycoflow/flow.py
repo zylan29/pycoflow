@@ -111,8 +111,8 @@ class RealisticFlow(Flow):
         self.size += packet.packet_size
         self.packet_num += 1
 
-    def output_flow(self, coflow_id):
-        out_str = ' '.join(map(str, [coflow_id, TimeUtils.time_offset(self.start_time), self.src_ip, self.src_port,
+    def output_flow(self, coflow_id, start_time):
+        out_str = ' '.join(map(str, [coflow_id, (self.start_time - start_time).total_seconds(), self.src_ip, self.src_port,
                                      self.dst_ip, self.dst_port, self.size]))
         return out_str
 

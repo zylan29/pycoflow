@@ -27,6 +27,10 @@ class Coflow(object):
                "\n".join(map(str, self.logical_flows.values())) + "\n" + "Real Flows:\n" + \
                "\n".join(map(str, self.realistic_flows.values()))
 
+    @property
+    def duration(self):
+        return (self.end_time - self.start_time).total_seconds()
+
     def get_coflow_id(self):
         return self.coflow_id
 

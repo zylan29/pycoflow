@@ -96,7 +96,7 @@ class CoflowParse(object):
                 for coflow_id in self.applications[app_id].coflows:
                     flow_id = app_id + '-' + coflow_id
                     for flow in self.applications[app_id].coflows[coflow_id].realistic_flows.values():
-                        f.write(flow.output_flow(flow_id))
+                        f.write(flow.output_flow(flow_id, self.start_time))
                         f.write('\n')
 
     def start_time_offsets(self):
@@ -119,3 +119,6 @@ if __name__ == '__main__':
     coflow_parse.parse_log_dir("/home/zyang/telogs/5-logs")
     coflow_parse.parse_pcap_dir("/home/zyang/telogs/5-pcap")
     coflow_parse.output_flows('flows.txt')
+    for app in coflow_parse.applications.values():
+        for coflow in app.coflows.values():
+            print coflow.duration
