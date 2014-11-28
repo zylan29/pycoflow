@@ -57,8 +57,14 @@ class LogicalFlow():
         self.start_time = self.start_time if self.start_time < logical_flow.start_time else logical_flow.start_time
         self.end_time = self.end_time if self.end_time > logical_flow.start_time else logical_flow.start_time
 
-    @staticmethod
-    def from_log_line(src_ip, log_line):
+    def output_flow(self, coflow_id, start_time):
+        out_str = ' '.join(map(str, [coflow_id,
+                                     (self.start_time-start_time).total_seconds(),
+                                     self.src_ip, self.dst_ip, self.size]))
+        return out_str
+
+    @classmethod
+    def from_log_line(cls, src_ip, log_line):
         fields = log_line.strip().split(' ')
         app_id = fields[0].split('/')[5].strip()
         start_time_str = fields[0].split(":")[1] + " " + fields[1]
@@ -68,7 +74,7 @@ class LogicalFlow():
         dst_ip = host2ip(dst_name)
         size = int(size)
         blocks = int(blocks)
-        return LogicalFlow(start_time, stage_id, blocks, size, dst_ip, dst_port, src_ip, app_id)
+        return cls(start_time, stage_id, blocks, size, dst_ip, dst_port, src_ip, app_id)
 
 
 class RealisticFlow(Flow):

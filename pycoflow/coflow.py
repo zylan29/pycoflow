@@ -41,10 +41,6 @@ class Coflow(object):
         :return:
         """
         assert isinstance(logical_flow, LogicalFlow), 'Wrong argument when adding a logical_flow to logical_flows'
-        if logical_flow.start_time < self.start_time:
-            self.start_time = logical_flow.start_time
-        elif logical_flow.start_time > self.end_time:
-            self.end_time = logical_flow.start_time
         for (k, v) in self.logical_flows.iteritems():
             if logical_flow.dst_ip == v.dst_ip and logical_flow.dst_port == v.dst_port and logical_flow.src_ip == v.src_ip:
                 v.append_logical_flow(logical_flow)

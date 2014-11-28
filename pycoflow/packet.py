@@ -19,8 +19,8 @@ class Packet(object):
                 + self.src_ip + ":" + self.src_port + " " + self.dst_ip + ":" + self.dst_port\
                 + " " + str(self.packet_size)
 
-    @staticmethod
-    def from_line_str(flow_line):
+    @classmethod
+    def from_line_str(cls, flow_line):
         """
         get packet object from a line in captured file.
         :param flow_line: a line in captured file.
@@ -34,4 +34,4 @@ class Packet(object):
         except ValueError:
             return None
         else:
-            return Packet(stage_id, packet_time, src_ip, src_port, dst_ip, dst_port, packet_size)
+            return cls(stage_id, packet_time, src_ip, src_port, dst_ip, dst_port, packet_size)

@@ -17,4 +17,6 @@ def packet_filter(packet):
         return True
     if packet.packet_size <= SIZE_FILTER:
         return True
+    if packet.packet_size in [56, 88, 90, 97]:
+        return True
     return False

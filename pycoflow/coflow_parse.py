@@ -31,9 +31,9 @@ class CoflowParse(object):
 
     def parse_applications(self, applications_file):
         with open(applications_file, 'r') as f:
-            for app in map(lambda x: x.strip(), f.readlines()):
-                if app not in self.applications:
-                    self.applications[app] = Application()
+            for app_id in map(lambda x: x.strip(), f.readlines()):
+                if app_id not in self.applications:
+                    self.applications[app_id] = Application()
         print self.applications.keys()
 
     def parse_retransmit(self, pcap_dir):
@@ -57,11 +57,6 @@ class CoflowParse(object):
         packets = parse_pcap(pcap_file, 'src host %s' % host_ip)
         f = open(packets_file, 'aw')
         for packet in packets:
-            if not self.start_time:
-                self.start_time = packet.packet_time
-            else:
-                if packet.packet_time < self.start_time:
-                    self.start_time = packet.packet_time
             if not packet_filter(packet):
                 found = False
                 for app_id in self.applications:
@@ -88,6 +83,10 @@ class CoflowParse(object):
                 logical_flow = LogicalFlow.from_log_line(host_ip, log_line)
                 if logical_flow.dst_ip == host_ip:
                     continue
+                if not self.start_time:
+                    self.start_time = logical_flow.start_time
+                elif logical_flow.start_time < self.start_time:
+                        self.start_time = logical_flow.start_time
                 self.applications[logical_flow.app_id].add_logical_flow(logical_flow)
 
     def output_flows(self, flows_file):
@@ -96,6 +95,15 @@ class CoflowParse(object):
                 for coflow_id in self.applications[app_id].coflows:
                     flow_id = app_id + '-' + coflow_id
                     for flow in self.applications[app_id].coflows[coflow_id].realistic_flows.values():
+                        f.write(flow.output_flow(flow_id, self.start_time))
+                        f.write('\n')
+
+    def output_logical_flows(self, logical_flows_file):
+        with open(logical_flows_file, 'w') as f:
+            for app_id in self.applications:
+                for coflow_id in self.applications[app_id].coflows:
+                    flow_id = app_id + '-' + coflow_id
+                    for flow in self.applications[app_id].coflows[coflow_id].logical_flows.values():
                         f.write(flow.output_flow(flow_id, self.start_time))
                         f.write('\n')
 
@@ -115,10 +123,15 @@ class CoflowParse(object):
 if __name__ == '__main__':
     parse_hosts("/etc/hosts")
     coflow_parse = CoflowParse()
-    coflow_parse.parse_applications('app.txt')
-    coflow_parse.parse_log_dir("/home/zyang/telogs/5-logs")
-    coflow_parse.parse_pcap_dir("/home/zyang/telogs/5-pcap")
+    coflow_parse.parse_applications('app-6.txt')
+    coflow_parse.parse_log_dir("/home/zyang/telogs/6-logs")
+    coflow_parse.parse_pcap_dir("/home/zyang/telogs/6-pcap")
     coflow_parse.output_flows('flows.txt')
+    coflow_parse.output_logical_flows('logical_flows.txt')
     for app in coflow_parse.applications.values():
         for coflow in app.coflows.values():
+            print coflow.start_time,
+            print ' ',
+            print coflow.end_time,
+            print ' ',
             print coflow.duration
